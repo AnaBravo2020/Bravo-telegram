@@ -1,0 +1,393 @@
+
+   public static void main(String[] args)
+   {
+      City calgary = new City(12, 12);
+      MazeBot don = new MazeBot(calgary, 1, 1, Direction.EAST, 1000); // <-- YOU WILL NEED TO CHANGE THIS FROM ZERO
+
+      Maze.makeMaze(calgary);
+
+      don.navigateMaze(); // <-- HERE'S WHERE THE NavigateMaze() method is
+      // called. NO NEED TO TOUCH AT ALL
+
+   }
+}
+
+------------------------------------------------- End of main ----------------------------------------------
+
+
+import becker.robots.*;
+
+/**
+ * CS1A - Assignment 3 - "The Maze" <br>
+ * Quarter: <br>
+ * 
+ * Code edited by team 07. The robot checks the left wall in order to find the
+ * exit.The robot also keeps track of the number of moves and the number of
+ * things it puts down.
+ * 
+ * @author Ana Bravo
+ */
+
+class MazeBot extends RobotSE
+{
+   /**
+    * Instance Variables declared and initialized here one each for totalMoves,
+    * movesWest, movesEast, movesSouth, and movesNorth.
+    */
+   int totalMoves = 0;
+   int movesWest = 0;
+   int movesEast = 0;
+   int movesSouth = 0;
+   int movesNorth = 0;
+   int cntThings = 0;
+
+
+   /**
+    * MazeBot constructs a city using class becker.robots
+    *
+    * @param theCity
+    * @param str
+    * @param ave
+    * @param dir
+    * @param numThings
+    */
+   public MazeBot(City theCity, int str, int ave, Direction dir, int numThings)
+   {
+      super(theCity, str, ave, dir, numThings);
+   }
+
+   /**
+    * move() Overrides Robot SE move() and it will count every movement the robot makes to by incrementing
+    * the proper instance variables before moving.The new move() is always used.
+    * instead of Robot SE move() in the NavigateMaze() method and its called methods.
+    */
+   public void move()
+   {
+      if (isFacingEast())
+      {
+         ++movesEast;
+      }
+      if (isFacingWest())
+      {
+         ++movesWest;
+      }
+      if (isFacingNorth())
+      {
+         ++movesNorth;
+      }
+      if (isFacingSouth())
+      {
+         ++movesSouth;
+      }
+
+      if (!canPickThing());// Only drop a thing if a thing if we want to and one is not already there.
+      {
+         if (this.countThingsInBackpack() > 0)
+         {
+            putThing();
+            ++cntThings;
+         }
+      }
+
+      super.move();
+
+      totalMoves = movesEast + movesWest + movesNorth + movesSouth;// calculate total moves
+
+   }
+
+   /**
+    * printEverything() prints data for number of robot moves in the North, South,
+    * East, and West directions. and also prints the total moves and number of
+    * things put down by the robot.
+    */
+   public void printEverything()
+   {
+
+      System.out.println("Total number of moves East is:    " + movesEast);
+      System.out.println("Total number of moves West is:    " + movesWest);
+      System.out.println("Total number of moves South is:   " + movesSouth);
+      System.out.println("Total number of moves North is:   " + movesNorth);
+      System.out.println("--------------------------------------");
+      System.out.println("Total number of spaces moved is:  " + totalMoves + "\n");
+      System.out.println("Total number of things put is:    " + cntThings);
+
+   }
+
+   /**
+    * Helper method called in navigateMaze() to determine the robot has reached its
+    * destination at the end of the maze.
+    * 
+    * @return
+    */
+   private boolean isAtEndSpot()
+   {
+      return getAvenue() == 9 && getStreet() == 10;
+   }
+
+   /**
+    * If token is true the robot looks to its left and if it is clear it calls
+    * movesCounted and moves one space and the method returns false. If the left is
+    * not clear the method returns true.
+    * 
+    * @param token
+    * @return
+    */
+   private boolean leftMove(boolean token)// use this if no wall on the left of the robot.
+   {
+      if (token)
+      {
+         turnLeft();
+         if (frontIsClear())
+         {
+            move();
+            token = false;
+         } else
+         {
+            turnRight();
+            token = true;
+         }
+      }
+
+      return token;
+   }
+
+   /**
+    * If token is true the robot looks forward and if it is clear the robot calls
+    * movesCounted and moves one space forward and the method returns false. If the
+    * front is not clear the method returns true.
+    * 
+    * @param token
+    * @return
+    */
+   private boolean forwardMove(boolean token)// use this if wall to left but not in front of robot.
+   {
+      if (token)
+      {
+         if (frontIsClear())
+         {
+            move();
+            token = false;
+         } else
+         {
+            token = true;
+         }
+      }
+
+      return token;
+   }
+
+   /**
+    * If token is true the robots looks right and if it is clear it calls
+    * movesCounted and moves one space and the method returns false. If the right
+    * is not clear the method returns true.
+    * 
+    * @param token
+    * @return
+    */
+   private boolean rightMove(boolean token)// use this if walls are to left of and in front of the robot.
+   {
+      if (token)
+      {
+         turnRight();
+         if (frontIsClear())
+         {
+            move();
+            token = false;
+         } else
+         {
+            turnLeft();
+            token = true;
+         }
+      }
+      return token;
+   }
+
+   /**
+    * If token is true the robot turns around and calls movesCounted to move one
+    * space and the method returns false.
+    * 
+    * @param token
+    * @return
+    */
+   private boolean turnAround(boolean token)// use this if robot boxed in to the left, the front and the right.
+   {
+      if (token)
+      {
+         turnAround();
+         move();
+         token = false;
+      } else
+      {
+         token = true;
+      }
+      return token;
+   }
+
+   /**
+    
+    * navigateMaze runs the logic to tell the robot how to navigate around the maze and find 
+    * it's way to the exit.
+    * navigateMaze is set up to have the robot hug the left side of the maze walls.
+    * If leftMove() and rightMove() are swapped the robot goes the other way around
+    * and hugs the right side of the maze. 
+    * 
+    * 
+    */
+   public void navigateMaze()
+   {
+      boolean OkToRun = true;
+      // While your robot hasn't yet reached the 'end spot', keep navigating
+      // through the Maze and doing its thing
+      while (!isAtEndSpot())
+      {
+         OkToRun = leftMove(OkToRun); // checks for wall on right and moves if it can
+         OkToRun = forwardMove(OkToRun); // checks for wall in front and moves if it can
+         OkToRun = rightMove(OkToRun); // checks for wall to the left and moves if it can
+         OkToRun = turnAround(OkToRun); // turns around and moves if all others fail
+      }
+
+      // After completing Maze, print total number of spaces moved and how
+      // many times robot moved East, South, West, and North.
+      turnRight(); // make robot look like it is ready to leave the maze
+      System.out.println(" --  Maze Exit Found !!! --");
+      printEverything(); // print all data
+   }
+
+}
+
+// ###################################################################################################
+// NO NEED TO TOUCH ANYTHING FROM HERE ON DOWN, EXCEPT TO CHANGE NUMBER OF
+// THINGS IN BACKPACK IN MAIN AND ADDING JavaDoc
+// The NavigateMaze() method is already set up and called by don the robot down
+// in main
+// ###################################################################################################
+/**
+ * Class Maze
+ * 
+ * @author Ana Bravo
+ *
+ */
+public class Maze extends Object
+{
+   /**
+    * Builds a maze of walls in city
+    * 
+    * @param theCity
+    */
+   private static void makeMaze(City theCity)
+   {
+      for (int i = 1; i < 11; i++)
+      {
+         // north wall
+         new Wall(theCity, 1, i, Direction.NORTH);
+
+         // Second to north wall
+         if (i <= 9)
+            new Wall(theCity, 1, i, Direction.SOUTH);
+
+         // Third to north wall
+         if (i >= 4)
+            new Wall(theCity, 4, i, Direction.SOUTH);
+
+         // south wall
+         if (i != 9) // (9, 10, SOUTH), is where the 'exit' is
+            new Wall(theCity, 10, i, Direction.SOUTH);
+
+         // west wall
+         if (i != 1) // (1,1, WEST) is where the 'entrance' is
+            new Wall(theCity, i, 1, Direction.WEST);
+
+         // second to most western wall
+         if (i >= 3 && i < 6)
+            new Wall(theCity, i, 6, Direction.WEST);
+
+         // east wall
+         new Wall(theCity, i, 10, Direction.EAST);
+      }
+
+      // Cul de Sac
+      new Wall(theCity, 3, 10, Direction.WEST);
+      new Wall(theCity, 3, 10, Direction.SOUTH);
+
+      new Wall(theCity, 2, 8, Direction.WEST);
+      new Wall(theCity, 2, 8, Direction.SOUTH);
+
+      new Wall(theCity, 10, 8, Direction.NORTH);
+      new Wall(theCity, 10, 9, Direction.EAST);
+      new Wall(theCity, 10, 9, Direction.NORTH);
+      makeSpiral(theCity, 8, 9, 3);
+      new Wall(theCity, 8, 10, Direction.SOUTH);
+
+      makeSpiral(theCity, 10, 5, 4);
+   }
+
+   /**
+    * make Spiral walls in city
+    * 
+    * @param theCity
+    * @param st
+    * @param ave
+    * @param size
+    */
+   public static void makeSpiral(City theCity, int st, int ave, int size)
+   {
+      // We start out building the wall northward
+      // the walls will be built on the east face of the current
+      // intersection
+      Direction facing = Direction.EAST;
+
+      while (size > 0)
+      {
+         int spacesLeft = size;
+         int aveChange = 0;
+         int stChange = 0;
+         switch (facing)
+         {
+         case EAST:
+            stChange = -1;
+            break;
+         case NORTH:
+            aveChange = -1;
+            break;
+         case WEST:
+            stChange = 1;
+            break;
+         case SOUTH:
+            aveChange = 1;
+            break;
+         default:
+            break;
+         }
+
+         while (spacesLeft > 0)
+         {
+            new Wall(theCity, st, ave, facing);
+            ave += aveChange;
+            st += stChange;
+            --spacesLeft;
+         }
+         // back up one space
+         ave -= aveChange;
+         st -= stChange;
+
+         switch (facing)
+         {
+         case EAST:
+            facing = Direction.NORTH;
+            break;
+         case NORTH:
+            facing = Direction.WEST;
+            size--;
+            break;
+         case WEST:
+            facing = Direction.SOUTH;
+            break;
+         case SOUTH:
+            facing = Direction.EAST;
+            size--;
+            break;
+         default:
+            break;
+         }
+      }
+   }
