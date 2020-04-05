@@ -1,0 +1,76 @@
+import becker.robots.*;
+
+/**
+ * CS1A
+ * Assignment 1
+ * Quarter: Fall 2019
+ * Professor: Baba Kofi Weusijana 
+ *
+ *@author Ana Bravo
+ */
+
+ 
+// Create a new type of robot, named RobotThatCanWalkDownWalls on the next line(s)
+class RobotThatCanWalkDownWalls extends Robot {
+	RobotThatCanWalkDownWalls(City c, int st, int ave, Direction dir, int num) {
+		super(c, st, ave, dir, num);
+	}
+	// construct a new RobotThatCanWalkDownWalls
+
+//You are using non-standard formatting here which can hide logic errors by making it hard to understand your work. No matter what Java IDE you use, you must open your code in Eclipse, and then choose "Format" from the "Source" menu after you have imported the default profile XML file from the "Program Guidelines" item on the Modules page.
+	/** Turn the robot around so it faces the opposite direction. */
+	public void turnAround() {
+		this.turnLeft();
+		this.turnLeft();
+	}
+
+	/** Move the robot forward three times. */
+	public void move3() {
+		this.move();
+		this.move();
+		this.move();
+	}
+
+	/** Turn the robot right 90 degrees by turning left. */
+	public void turnRight() {
+		this.turnAround();
+		this.turnLeft();
+	}
+
+	public void WalkDownWalls() {
+		this.move();
+		this.turnRight();
+		this.move3();
+		this.pickThing();
+		this.turnLeft();
+		this.move();
+		this.turnRight();
+		this.move3();
+		this.turnAround();
+	}
+
+//You didn't write a walkDownWall method here. You should call walkDownWall twice from main, once before you call pickThing and again before you call putThing.
+	public static class WalkDownWalls extends Object {
+		public static void main(String[] args) {
+			City wallingford = new City();
+			RobotThatCanWalkDownWalls joe = new RobotThatCanWalkDownWalls(wallingford, 0, 1, Direction.EAST, 0);			
+//You never put a space *before* a comma.
+//You used the correct constructor, but you declared joe to be of the type Robot instead of RobotThatCanWalkDownWalls. You code should be like this:
+				// RobotThatCanWalkDownWalls joe = new RobotThatCanWalkDownWalls(wallingford,...
+			new Wall(wallingford, 0, 1, Direction.SOUTH);
+			new Wall(wallingford, 1, 1, Direction.EAST);
+			new Wall(wallingford, 2, 1, Direction.EAST);
+			new Wall(wallingford, 3, 1, Direction.EAST);
+			new Wall(wallingford, 3, 2, Direction.SOUTH);
+			new Wall(wallingford, 4, 2, Direction.EAST);
+			new Wall(wallingford, 5, 2, Direction.EAST);
+			new Wall(wallingford, 6, 2, Direction.EAST);
+			new Wall(wallingford, 6, 3, Direction.SOUTH);
+			// Add a thing
+			new Thing(wallingford, 3, 2);
+			// joe will inherit from class WalkDownWalls
+//It is OK that you decided to put everything into on single class that inherits from Robot, but you still need to call a walkDownWall method twice from this main method.
+			joe.WalkDownWalls();
+//You have a logic/intent error here: becker.robots.RobotException: A robot at (3, 2) crashed while moving SOUTH.
+		}
+	}
