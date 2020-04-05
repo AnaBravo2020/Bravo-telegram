@@ -1,0 +1,60 @@
+
+//Ana Bravo
+import becker.robots.*;
+import java.util.Scanner;
+// added the scanner utility
+
+public class ICE_10_IO extends Object {
+
+	public static void main(String[] args) {
+
+		int userChoice = 0;
+		Scanner keyboard = new Scanner(System.in);
+		// Added system.in to scanner
+
+		City wallville = new City(10, 10);
+		Robot rob = new Robot(wallville, 7, 0, Direction.EAST, 0);
+		// Added print out rob's position
+		System.out.println("rob.getAvenue():" + rob.getAvenue());
+		System.out.println("rob.getStreet():" + rob.getStreet());
+		new Thing(wallville, 7, 0);
+		new Thing(wallville, 7, 6);
+		new Thing(wallville, 1, 6);
+
+		while (userChoice != 3) {
+			System.out.println("Please select from the following options:");
+			System.out.println("1 - turn right");
+			System.out.println("2 - move");
+			System.out.println("3 - quit");
+
+			// changed if(true) statement to has hasNextInt.
+			if (keyboard.hasNextInt()) {
+				// changed nextInteger to nextInt
+				userChoice = keyboard.nextInt();
+
+				System.out.println("userInput is: " + userChoice);
+
+				if (userChoice == 1) {
+					rob.turnLeft();
+					rob.turnLeft();
+					rob.turnLeft();
+				}
+				if (userChoice == 2) {
+					rob.move();
+
+				}
+			} else {
+				System.out.println("You have not input a valid integer!!\n");
+			}
+			// Added keyboard.nextLine() to clear the input buffer.
+			keyboard.nextLine();
+		}
+
+		// Added message to notify user that they have quit the program
+		System.out.println("you have chosen to quit---good bye.");
+
+		// Added keyboard.close()
+		keyboard.close();
+	}
+
+}
