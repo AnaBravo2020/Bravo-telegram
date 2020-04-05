@@ -1,0 +1,173 @@
+/**
+ * CS 1B Quarter: Winter 2020 Professor: David Harden 
+ * This class contains Five classes with a main. Base Queue and Node contain 
+ * methods that are overwritten in CardNode and CardQueue, as well as the card 
+ * class also needed instead of using a FloatNode. Lastly, the main class tests 
+ * the push back, toString, and the remove front methods.
+ *
+ * @author anabravo
+ *
+ */
+public class Node
+{
+      protected Node next;
+
+      public Node(Node next) {
+          this.next = next;
+      }
+
+      public String toString() {
+          return "(generic node)";
+      }
+  }
+class Queue {
+   Node front, back;
+
+   public Queue() {
+       front = new Node(null);
+       back = new Node(front);
+   }
+
+   public void push_back(Node n) {
+       Node lastNode = back.next;
+       lastNode.next = n;
+       back.next = n;
+   }
+
+   public Node remove_front() throws QueueEmptyException {
+       Node firstNode = front.next;
+       if (firstNode == null)
+           throw new QueueEmptyException();
+       front.next = firstNode.next;
+       return firstNode;
+   }
+
+   public String toString() {
+       String result = "";
+       Node currNode = front.next;
+       while (currNode != null) {
+           result = result + currNode.toString() + "; ";
+           currNode = currNode.next;
+       }
+       return result;
+   }
+
+   class QueueEmptyException extends Exception {
+       public QueueEmptyException() {
+           super("QUEUE IS EMPTY!!!");
+       }
+   }
+}
+
+
+class Card {
+   public enum Suit {
+       clubs, diamonds, hearts, spades
+   }
+
+   public static final char DEFAUlT_VAL = 'A';
+   public static final Suit DEFAULT_SUIT = Suit.spades;
+
+   private char value;
+   private Suit suit;
+   private boolean errorFlag;
+
+   public Card(char value, Suit suit) {
+       set(value, suit);
+   }
+
+   public Card(char value) {
+       this(value, DEFAULT_SUIT);
+   }
+
+   public Card() {
+       this(DEFAUlT_VAL);
+   }
+
+   public Card(Card card) {
+       this.errorFlag = card.errorFlag;
+       this.value = card.value;
+       this.suit = card.suit;
+   }
+
+   public boolean set(char value, Suit suit) {
+       errorFlag = false;
+       char upVal = Character.toUpperCase(value);
+       if (!isValid(upVal))
+           errorFlag = true;
+       this.value = upVal;
+       this.suit = suit;
+       return !errorFlag;
+   }
+
+   public char getValue() {
+       return value;
+   }
+
+   public Suit getSuit() {
+       return suit;
+   }
+
+   public boolean getErrorFlag() {
+       return errorFlag;
+   }
+
+   public String toString() {
+       if (errorFlag)
+           return "[invalid]";
+       return String.valueOf(value) + " of " + suit;
+   }
+
+   private boolean isValid(char c) {
+       return (c == 'A') || (c >= '2' && c <= '9') || (c == 'T') || (c == 'J') || (c == 'Q') || (c == 'K')
+               || (c == 'X');
+   }
+}
+
+
+class CardNode extends Node {
+   protected Card value;
+
+   public CardNode(Card value, Node next) {
+       super(next);
+       this.value = value;
+   }
+
+   public String toString() {
+       return value.toString();
+   }
+}
+
+
+class CardQueue extends Queue {
+   public void push_back(Card card) {
+       CardNode newNode = new CardNode(card, null);
+       super.push_back(newNode);
+   }
+
+   public Card remove_front_card() throws QueueEmptyException {
+       CardNode resultNode = (CardNode) super.remove_front();
+       return resultNode.value;
+   }
+}
+
+
+class Foothill {
+   public static void main(String[] args) throws Exception {
+
+       CardQueue q = new CardQueue();
+       Card c1 = new Card('A');
+       Card c2 = new Card('2');
+       Card c3 = new Card('3');
+       Card c4 = new Card('4');
+       q.push_back(c1);
+       q.push_back(c2);
+       q.push_back(c3);
+       q.push_back(c4);
+       System.out.println(q.toString());
+
+       System.out.println(q.remove_front_card().toString());
+       System.out.println(q.remove_front_card().toString());
+       System.out.println(q.toString());
+   }
+}
