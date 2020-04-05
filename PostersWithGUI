@@ -1,0 +1,137 @@
+package edu.foothill;
+import javax.swing.JFrame;
+
+public class Gallery 
+{
+   public static void main(String[] args)
+   {
+
+	   ControlsFrame controls = new ControlsFrame("Gallery");
+	   // Make sure the entire application exits when the ControlsFrame is closed.
+	   controls.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       controls.setSize(500, 250);
+       controls.setVisible(true);
+   }
+}
+
+------------------------------------------- End of main -----------------------------------------------
+
+package edu.foothill;
+
+import javax.swing.*;
+import javax.swing.border.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class ControlsFrame extends JFrame
+{
+   JLabel lblPrompt, lblWidth, lblHeight;
+   JPanel panelMain;
+   JComboBox<String> cmboPosters;
+   JButton btnSet;
+   JTextField txtWidth, txtHeight;
+   JFrame imageFrame;
+
+   public ControlsFrame(String title)
+   {
+      super(title);
+
+      lblPrompt = new JLabel("Choose a poster from the dropdown.");
+      lblWidth = new JLabel("Width:");
+      lblHeight = new JLabel("Height:");
+      panelMain = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+      txtWidth = new JTextField(5);
+      txtHeight = new JTextField(5);
+      btnSet = new JButton("Set Size");
+      String[] strPosters = new String[]
+      { "1: Avengers: Endgame", "2: Star Wars", "3: The Matrix", "4: Lucy", "5: Tron: Legacy", "6: RBTI", "7: IT",
+            "8: Toy Story", "9: Get Out", "10: The Martian" };
+      cmboPosters = new JComboBox<String>(strPosters);
+      imageFrame = new JFrame();
+
+      BorderLayout myLayout = new BorderLayout(20, 10);
+      setLayout(myLayout);
+      add(lblPrompt, BorderLayout.NORTH);
+      add(panelMain, BorderLayout.CENTER);
+      panelMain.setBorder(new TitledBorder("Movie Poster"));
+      panelMain.add(cmboPosters);
+      panelMain.add(lblWidth);
+      panelMain.add(txtWidth);
+      panelMain.add(lblHeight);
+      panelMain.add(txtHeight);
+      panelMain.add(btnSet);
+
+      imageFrame.setVisible(false);
+      ActionListener myListener = new SetSizeListener();
+      btnSet.addActionListener(myListener);
+   }
+
+   class SetSizeListener implements ActionListener
+   {
+      public void actionPerformed(ActionEvent e)
+      {
+         String posterName, imagePath;
+         int width, height;
+
+         posterName = (String) cmboPosters.getSelectedItem();
+         width = Integer.parseInt(txtWidth.getText());
+         height = Integer.parseInt(txtHeight.getText());
+
+         switch (posterName)
+         {
+         case "1: Avengers: Endgame":
+            imagePath = "dedaff79009073.5cb5fb0383568.jpg";
+            break;
+
+         case "2: Star Wars":
+            imagePath = "d7dfbb1101817.5600c9a40bd43.jpg";
+            break;
+
+         case "3: The Matrix":
+            imagePath = "17072638696_f871731849_b.jpg";
+            break;
+
+         case "4: Lucy":
+            imagePath = "32996408364_8ac3be222c.jpg";
+            break;
+
+         case "5: Tron: Legacy":
+            imagePath = "4859886671_cef0598bf3_b.jpg";
+            break;
+
+         case "6: RBTI":
+            imagePath = "RBTI.jpg";
+            break;
+
+         case "7: IT":
+            imagePath = "IT.jpg";
+            break;
+
+         case "8: Toy Story":
+            imagePath = "11e45383610823.5d41b26b20de5.jpg";
+            break;
+
+         case "9: Get Out":
+            imagePath = "41188902220_028fdf00e2_b.jpg";
+            break;
+
+         case "10: The Martian":
+            imagePath = "36353200814_20d1784ce9_b.jpg";
+            break;
+
+         default:
+            imagePath = "loading.gif";
+            break;
+         }
+
+         ImageDisplay imageDisplay = new ImageDisplay();
+         imageFrame.add(imageDisplay);
+         imageFrame.setSize(width, height);
+         imageFrame.setVisible(true);
+         imageDisplay.setImagePath(imagePath);
+
+      }
+
+   }
+
+}
