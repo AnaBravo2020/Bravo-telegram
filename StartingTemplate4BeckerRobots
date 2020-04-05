@@ -1,0 +1,50 @@
+import java.util.Scanner;
+
+import becker.robots.*;
+
+
+public class Starting_Template extends Object {
+	static int userChoice = 0 ;
+	
+	static Scanner keyboard = new Scanner(System.in);
+	
+	public static void main(String[] args) {
+		City toronto = new City();
+		Robot jo = new Robot(toronto, 3, 0, Direction.EAST, 0);
+		new Thing(toronto, 3, 2);
+
+		/* Your code should after here: */
+		System.out.println("jo.getAvenue():" + jo.getAvenue());
+		System.out.println("jo.getStreet():" + jo.getStreet());
+		System.out.println("What would you like the robot to do?");
+		System.out.println("Type 1 to turn left: ");
+		System.out.println("Type 2 to move forward ");
+		System.out.println("Type 3 to pick a Thing up ");
+		System.out.println("Type 4 to put a Thing down ");
+		
+		
+		userChoice = keyboard.nextInt();
+		
+		System.out.println("userInput is: " + userChoice);
+		
+		if( userChoice == 1)
+		{
+			jo.turnLeft();
+			jo.turnLeft();
+			jo.turnLeft();
+		}
+		if( userChoice == 2)
+		{
+			jo.move();
+		}
+		if( userChoice == 3)
+		{
+            jo.pickThing();
+		}	
+		if( userChoice == 4)
+		{
+		    jo.putThing();
+		}
+		
+		}
+	} 
