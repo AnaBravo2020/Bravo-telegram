@@ -1,0 +1,91 @@
+//Ana Bravo
+
+import becker.robots.*;
+import java.awt.Color;
+import java.util.Scanner;
+
+public class Basic_I_O extends Object
+{
+	
+	public static void main(String[] args)
+	{
+		
+
+		int userChoice = 0 ;
+		
+		// Added System.in to Scanner
+        Scanner keyboard = new Scanner(System.in);
+        
+        //initialize everything
+		City toronto = new City();
+		Robot jo = new Robot(toronto, 3, 0, Direction.EAST, 0);
+		jo.setColor(Color.BLUE);
+		new Thing(toronto, 3, 2);
+
+        //keep getting userChoice input until a 5 is entered to quit
+        while(userChoice != 5)
+        {
+             System.out.println("Please select from the following options:");
+             System.out.println("Type 1 if you want the robot to turn left");
+             System.out.println("Type 2 if you want it to move one intersection");
+             System.out.println("Type 3 if you want it to pick one thing");
+             System.out.println("Type 4 if you want it to put one thing");
+             System.out.println("Type 5 if you want to quit");
+			   
+             // changed if(true) to if keyboard.hasNextInt() 
+             if( keyboard.hasNextInt()) 
+             {
+                  // Corrected keyboard.nextInteger(); to keyboard.nextInt();
+                  userChoice = keyboard.nextInt();
+				  
+                  System.out.println("userInput is: " + userChoice + "\n");
+				  //lets user turn the robot left
+                  if( userChoice == 1)
+                  {
+                       jo.turnLeft();
+                  }   
+                  //lets user move one space forward
+                  if( userChoice == 2)
+                  {
+                       jo.move();
+                  }
+                  // lets user pick a thing up
+                  if( userChoice == 3)
+                  {
+                	  if(jo.canPickThing())
+                	  {
+                       jo.pickThing();
+                	  }
+                	  else
+                	  {
+                		  System.out.println("Nothing to pick up!\n");  
+                	  }
+                  }
+                  //lets user put a thing down
+                  if( userChoice == 4)
+                  {
+                	  if(jo.countThingsInBackpack()>0)
+                	  {
+                       jo.putThing();
+                	  }
+                	  else
+                	  {
+                		  System.out.println("Nothing to put!\n");
+                	  }
+                  }
+             }
+             else
+             {
+                 System.out.println("You have not input a valid integer!!\n");
+             }
+             //Added keyboard.nextLine() to clear the input buffer.
+             keyboard.nextLine();
+        }
+
+        //Added message to notify user that they have quit the program
+        System.out.println("You have chosen to quit --- good bye.");
+           
+        //Added keyboard.close()
+        keyboard.close();
+	} 
+}
