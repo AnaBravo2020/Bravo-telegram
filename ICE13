@@ -1,0 +1,123 @@
+
+/**
+ * @author Ana Bravo
+ * Code edited by Ana Bravo. Two robots; Ana and Dave use the safe robot methods. Robot Dave uses a method used 
+ * for dropping things without breaking even when he runs out of things. Robot Ana runs into a wall
+ * but does not break.
+ */
+import java.awt.Color;
+
+import becker.robots.*;
+
+class SafeRobot extends RobotSE {
+	SafeRobot(City c, int st, int ave, Direction dir, int num) {
+		super(c, st, ave, dir, num);
+	}
+
+	public void move() {
+		if (this.frontIsClear()) {
+			super.move();
+		}
+	}
+
+	public void pickThing() {
+		if (this.canPickThing()) {
+			super.pickThing();
+		}
+	}
+
+	public void putThing() {
+		if (this.countThingsInBackpack() > 0) {
+			super.putThing();
+		}
+	}
+}
+
+class MysteryRobot extends Robot {
+	MysteryRobot(City c, int st, int ave, Direction dir, int num) {
+		super(c, st, ave, dir, num);
+	}
+
+	public void move() {
+		super.move();
+	}
+
+	public void turnAround() {
+		this.turnLeft();
+		this.turnLeft();
+		System.out.println(this);
+	}
+
+	public void pace() {
+		this.move();
+		this.move();
+		this.turnAround();
+		this.move();
+		this.move();
+		this.turnAround();
+	}
+}
+
+class MysteryRobotSubclass extends MysteryRobot {
+	MysteryRobotSubclass(City c, int st, int ave, Direction dir, int num) {
+		super(c, st, ave, dir, num);
+	}
+
+	public void turnAround() {
+		this.putThing();
+		System.out.println("Hey, I'm turning around now.");
+		super.turnAround();
+	}
+}
+
+public class ICE_13SafeRobot extends Object {
+	public static void main(String[] args) {
+		City ForgetsVille = new City(14, 14);
+		MysteryRobot joe = new MysteryRobot(ForgetsVille, 4, 0, Direction.EAST, 2);
+		joe.setLabel("joe");
+		joe.setColor(Color.GREEN);
+		MysteryRobotSubclass rob = new MysteryRobotSubclass(ForgetsVille, 3, 0, Direction.EAST, 2);
+		rob.setLabel("rob");
+		rob.setColor(Color.yellow);
+		SafeRobot Ana = new SafeRobot(ForgetsVille, 5, 0, Direction.EAST, 2);
+		Ana.setLabel("Ana");
+		Ana.setTransparency(.6);
+		SafeRobot Dave = new SafeRobot(ForgetsVille, 6, 0, Direction.EAST, 4);
+		Dave.setLabel("Dave");
+		Dave.setColor(Color.BLUE);
+		
+		new Wall(ForgetsVille, 3, 1, Direction.NORTH);
+		new Wall(ForgetsVille, 3, 1, Direction.EAST);
+		new Wall(ForgetsVille, 4, 1, Direction.EAST);
+		new Wall(ForgetsVille, 5, 2, Direction.NORTH);
+		new Wall(ForgetsVille, 5, 2, Direction.EAST);
+		new Wall(ForgetsVille, 6, 8, Direction.EAST);
+		
+		System.out.println(Ana);
+		int counter = 0;
+		while (counter < 100) {
+			counter++;
+			Ana.move();
+		}
+
+		System.out.println(Dave);
+		int counter1 = 0;
+		while (counter1 < 100) {
+			counter1++;
+			Dave.move();
+			Dave.putThing();
+		}
+		
+		Dave.turnAround();
+		int counter2 = 0;
+		while (counter2 < 8) {
+			counter2++;
+			Dave.move();
+			Dave.pickThing();
+		}
+		System.out.println(joe);
+		joe.pace();
+		System.out.println(rob);
+		rob.pace();
+	}
+}
