@@ -1,0 +1,335 @@
+import java.util.Random;
+import java.util.Scanner;
+
+public class Foothill
+{
+   /**
+    * CS 1B Quarter: Winter 2020 Professor: David Harden This class contains 2
+    * mains and two classes. A Hand class with constructors to construct a card,
+    * and a card class that contains methods used in a cards game.
+    * 
+    * @author Ana Bravo
+    */
+   //main with unshuffled Cards
+   public static void main(String[] args) throws Exception
+   {
+      System.out.println("How many hands? (1 - 12, please):");
+      System.out.println("Here are our hands, from unshuffled deck:");
+      Scanner inputStream = new Scanner(System.in);
+      int numPlayers = inputStream.nextInt();
+
+      Deck deck = new Deck(); 
+      Hand[] players = new Hand[numPlayers];
+      for (int i = 0; i < players.length; i++)
+          players[i] = new Hand();
+
+      int currPlayer = 0;
+      while (deck.getNumCards() > 0) {
+          players[currPlayer++].takeCard(deck.getTopCard());
+          if (currPlayer == numPlayers)
+              currPlayer = 0;
+      }
+
+      for (int i = 0; i < players.length; i++) {
+          System.out.println("Player " + (i + 1) + " has: " + players[i].toString());
+      }
+   }
+
+   //main 2 with shuffled Cards
+   public static void main2(String[] args) throws Exception
+   {
+      System.out.println("How many hands? (1 - 12, please):");
+      System.out.println("Here are our hands, from shuffled deck:");
+      Scanner inputStream = new Scanner(System.in);
+      int numPlayers = inputStream.nextInt();
+
+      Deck deck = new Deck(); 
+      Hand[] players = new Hand[numPlayers];
+      for (int i = 0; i < players.length; i++)
+          players[i] = new Hand();
+
+      int currPlayer = 0;
+      while (deck.getNumCards() > 0) {
+         deck.reorder();
+          players[currPlayer++].takeCard(deck.getTopCard());
+          if (currPlayer == numPlayers)
+              currPlayer = 0;
+      }
+
+      for (int i = 0; i < players.length; i++) {
+          System.out.println("Player " + (i + 1) + " has: " + players[i].toString());
+      }
+   }
+}
+
+   class Card
+   {
+      // type and constants
+      public enum Suit
+      {
+         clubs, diamonds, hearts, spades
+      }
+
+      static final char DEFAULT_VAL = 'A';
+      static final Suit DEFAULT_SUIT = Suit.spades;
+
+      // private data.
+      private char value;
+      private Suit suit;
+      boolean errorFlag;
+
+      // Four overloaded constructors.
+      public Card(char value, Suit suit)
+      {
+         set(value, suit);
+      }
+
+      public Card(char value)
+      {
+         this(value, Suit.spades);
+      }
+
+      public Card()
+      {
+         this(DEFAULT_VAL, DEFAULT_SUIT);
+      }
+
+      public Card(Card card)
+      {
+         this(card.value, card.suit);
+      }
+
+      // Mutators.
+      public boolean set(char value, Suit suit)
+      {
+         char upVal;            // for uppercasing char
+
+         // convert to uppercase to simplify
+         upVal = Character.toUpperCase(value);
+
+         if ( !isValid(upVal, suit))
+         {
+            errorFlag = true;
+            return false;
+         }
+         
+         // else implied
+         errorFlag = false;
+         this.value = upVal;
+         this.suit = suit;
+         return true;
+      }
+
+      // Accessors.
+      public char getVal()
+      {
+         return value;
+      }
+
+      public Suit getSuit()
+      {
+         return suit;
+      }
+
+      public boolean getErrorFlag()
+      {
+         return errorFlag;
+      }
+
+      // Stringizer
+      public String toString()
+      {
+         if (errorFlag == true)
+            return "[invalid]";
+
+        String retVal;
+        retVal = String.valueOf(value) + " of " + suit;
+        return retVal;
+      }
+
+      // Helper
+      private static boolean isValid(char value, Suit suit)
+      {
+         return value == 'A' || value == 'K' || value == 'Q' || value == 'J' || value == 'T'
+               || (value >= '2' && value <= '9');
+      }
+
+      public boolean equals(Card card)
+      {
+         return this.errorFlag == card.errorFlag && this.suit == card.suit && this.value == card.value;
+      }
+   }
+
+   // Phase 2 starts here.
+   class Hand
+   {
+      // instantiates a new value for the total number of cards.
+      public static int MAX_CARDS = 50;
+      // instantiates a new array to keep track of the number of cards.
+      private Card[] myCards;
+      private int numCards;
+
+      //
+      public Hand()
+      {
+         myCards = new Card[MAX_CARDS];
+         numCards = 0;
+      }
+
+      // method used to reset the cards.
+      public void resetHand()
+      {
+         numCards = 0;
+      }
+
+      // Tests whether the player needs a card. If the boolean is true;
+      // the take card method will give one card.
+      public boolean takeCard(Card card)
+      {
+         if (numCards >= MAX_CARDS)
+            return false;
+
+         // be frugal - only allocate when needed
+         if (myCards[numCards] == null)
+            myCards[numCards] = new Card();
+
+         // don't assign - that would be a grave error (could clone(), instead)
+         myCards[numCards++].set(card.getVal(), card.getSuit());
+         return true;
+      }
+
+      // This method is to play a card
+      public Card playCard()
+      {
+         numCards--;
+         return new Card(myCards[numCards]);
+      }
+
+      public String toString()
+      {
+         int k;
+         String retVal = "Hand =  ( ";
+
+         for (k = 0; k < numCards; k++)
+         {
+            retVal += myCards[k].toString();
+            if (k < numCards - 1)
+               retVal += ", ";
+         }
+         retVal += " )";
+         return retVal;
+      }
+
+      int getNumCards()
+      {
+         return numCards;
+      }
+
+      // This method is used to inspect if the player asks for a valid card
+      // If it is invalid; the player will get a invalid card as a hint.
+      public Card inspectCard(int k)
+      {
+         // return copy of card at position k.
+         // if client tries to access out-of-bounds card, return error
+
+         Card errorReturn = new Card('E', Card.Suit.spades); // in rare cases
+
+         if (k < 0 || k >= numCards)
+            return errorReturn;
+         else
+            return myCards[k];
+      }
+   }
+   // The Deck Class starts here.
+   class Deck
+   {
+      private static int MAX_PACKS = 6; //Six pack are instantiated, each containing 52 cards.
+      private static int NUM_CARDS_PER_PACK = 52;
+      private static int MAX_CARDS_PER_DECK = MAX_PACKS * NUM_CARDS_PER_PACK; 
+
+      private static Card[] staticPack;
+      private static boolean haveAPack = false;
+
+      private Card[] cards;
+      private int numCards;
+      private int numPacks;
+
+      public Deck(int numPacks) {
+          allocateStaticPack();
+          restock(numPacks);
+      }
+
+      public Deck() {
+          this(1);
+      }
+     //This is the method used for getting cards until the loop reaches the Max_packs limit.
+      public boolean restock(int numPacks) {
+          if (numPacks <= 0 || numPacks > MAX_PACKS)
+              return false;
+
+          this.numPacks = numPacks;
+          this.numCards = numPacks * NUM_CARDS_PER_PACK;
+          cards = new Card[numCards];
+
+          int currPos = 0;
+          for (int j = 0; j < numPacks; j++)
+              for (int i = 0; i < NUM_CARDS_PER_PACK; i++)
+                  cards[currPos++] = new Card(staticPack[i]);
+
+          return true;
+      }
+     //Shuflles the Cards
+      public void reorder() {
+          Random randomGen = new Random();
+          for (int i = 0; i < numCards; i++) {
+              int randomPos = randomGen.nextInt(numCards);
+              Card temp = cards[i];
+              cards[i] = cards[randomPos];
+              cards[randomPos] = temp;
+          }
+      }
+      //gets the next card(top card)
+      public Card getTopCard() {
+          numCards--;
+          return new Card(cards[numCards]);
+      }
+
+      public int getNumCards() {
+          return numCards;
+      }
+
+      public Card getCard(int k) {
+
+          if (k < 0 || k >= numCards)
+              return new Card('B');
+          return new Card(cards[k]);
+      }
+
+      private static void allocateStaticPack() 
+      {
+         Card.Suit suits[] = {Card.Suit.clubs, Card.Suit.diamonds,
+               Card.Suit.hearts, Card.Suit.spades};
+
+         staticPack = new Card[NUM_CARDS_PER_PACK];
+         char charVal = '2';
+
+         for (int i = 0; i < 4; i++)
+        {   
+             charVal = '2';
+
+             for (int k = 0; k < 8; k++)
+       {
+         staticPack[(13 * i) + k] = new Card(charVal, suits[i]);
+         charVal++;
+       }
+
+        staticPack[(13*i) + 8] = new Card('T', suits[i]);
+        staticPack[(13*i) + 9] = new Card('J', suits[i]);
+        staticPack[(13*i) + 10] = new Card('Q', suits[i]);
+        staticPack[(13*i) + 11] = new Card('K', suits[i]);
+        staticPack[(13*i) + 12] = new Card('A', suits[i]);         
+        }
+
+         
+      }
+   }
