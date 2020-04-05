@@ -1,0 +1,35 @@
+
+/**
+ *
+ * @ Ana Bravo
+ * Fall 2019
+ */
+
+import java.util.Scanner;
+
+public class Nonrobot_Template extends Object {
+	public static void main(String[] args) {
+		// Notice how we don't need to setup the city anymore
+		// Added System.in to Scanner
+		Scanner keyboard = new Scanner(System.in);
+		int userChoice = 0;
+		boolean stillGettingInput = true;
+		System.out.println("Hello, User!");
+		while (stillGettingInput) {
+			System.out.println("Enter an integer: ");
+
+			if (keyboard.hasNextInt()) {
+				userChoice = keyboard.nextInt();
+				stillGettingInput = false;
+			} else {
+				keyboard.nextLine();
+				System.out.println("That is not a valid input, try again");
+			}
+
+		}
+		System.out.println("You just typed: " + userChoice);
+		/* Your code should go here: */
+		System.out.println("Twice what you just typed is: " + userChoice * 2);
+		System.out.println("Thank you for participating");
+	}
+}
