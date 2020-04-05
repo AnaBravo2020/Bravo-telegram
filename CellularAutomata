@@ -1,0 +1,128 @@
+/**
+ * CS1B, Assignment 3, "Cellular Automata"<br>
+ * Quarter: Winter 2020, Professor:David Harden <br>
+ * This class contains methods to generate a rule according to
+ * the rule the user will input. These methods check if the user will input a number
+ * between the maximum number of width. It has a generator that generates a bit if the
+ * rule is true, else " " and it contains a method to reset the seed first seed "*". 
+ * 
+ * 
+ * @author anabravo
+ *
+ */
+import java.util.Scanner;
+
+class Automaton
+{
+   
+   public static void main(String args[]) {
+      Scanner inputStream = new Scanner(System.in);
+      System.out.print("Enter Rule (0 - 255): ");
+      int rule = inputStream.nextInt();
+      
+      Automaton a = new Automaton(rule);
+      
+      System.out.println("   start");
+      for (int i = 0; i < 20; i++) {
+         System.out.println(a.toStringCurrentGen());
+         a.propagateNewGeneration();
+      }
+      
+      System.out.println("   end");
+
+   }
+   
+   
+   
+   // class constants
+   public final static int MAX_DISPLAY_WIDTH = 121;   // Used to instantiate the maximum number of width.
+   
+   // private members
+   private boolean rules[];  // allocate rules[8] in constructor!
+   private String thisGen;   // same here
+   String extremeBit; // bit, "*" or " ", implied everywhere "outside"
+   int displayWidth;  // an odd number so it can be perfectly centered
+   
+   public Automaton(int new_rule) {
+      extremeBit = "*";   // constructor generates a bit
+      displayWidth = MAX_DISPLAY_WIDTH;   // displays the maximum width of the Automaton; 121.
+      rules = new boolean[8];
+      if(!setRule(new_rule))   // sets the bit to "0" or " ", if the rule is not valid.
+         setRule(0);
+      resetFirstGen();
+   }
+   
+   public void resetFirstGen() { // This is the seed '1' used to reset the first generation.
+      thisGen = " * ";   // 
+   }
+   
+   public boolean setRule(int new_rule) {   // boolean to check if the rule is invalid. 
+      if (new_rule < 0 || new_rule > 255)   // The rule needs to be between 0 to 255. 
+         return false;
+      for(int i  = 0; i <= 7; i++) {   // This instantiates an array to allocate 8 rules; 0 to 7.
+         rules[i] = isOdd(new_rule);   // If the rule in the array is odd a new rule will be divided by 2.
+         new_rule = new_rule / 2;
+      }
+      return true;
+   }
+   
+   public boolean setDisplayWidth(int width) {   // This boolean is used to check if the width is within a 
+      if (width < 0 || width > MAX_DISPLAY_WIDTH || !isOdd(width))   // valid range (bigger than 0, but
+         return false;                                               // less than 121).
+      displayWidth = width;
+      return true;
+   }
+   
+   public String toStringCurrentGen() {    // Returns the new Generation.
+      return thisGen;
+   }
+   // This method is used to determine the rule the user will input, it stores the digits
+   // and determines if it is true * or false " ". 
+   public void propagateNewGeneration() { 
+      thisGen = extremeBit + extremeBit + thisGen + extremeBit + extremeBit;
+      String nextGen = "";
+      int firstDigit = 0;
+      int secondDigit = 0;
+      int thirdDigit = 0;
+      for (int i = 1; i < thisGen.length() - 1; i++) {
+         if (thisGen.charAt(i-1) == '*')
+            firstDigit = 1;
+         else
+            firstDigit = 0;
+         
+         if (thisGen.charAt(i) == '*')
+            secondDigit = 1;
+         else
+            secondDigit = 0;
+            
+         if (thisGen.charAt(i+1) == '*' )
+            thirdDigit = 1;
+         else
+            thirdDigit = 0;
+            
+         if (rules[4*firstDigit+2*secondDigit+1*thirdDigit])
+            nextGen = nextGen + "*";
+         else
+            nextGen = nextGen + " ";
+      }
+      thisGen = nextGen;
+      
+      if (extremeBit == "*") {
+         firstDigit = 1;
+         secondDigit = 1;
+         thirdDigit = 1;
+      } else {
+         firstDigit = 0;
+         secondDigit = 0;
+         thirdDigit = 0;
+      }
+      if (rules[4*firstDigit+2*secondDigit+1*thirdDigit])
+         extremeBit = "*";
+      else
+         extremeBit = " ";
+   }
+   
+   private boolean isOdd(int n) {
+      return (n % 2) == 1;
+   }
+}
