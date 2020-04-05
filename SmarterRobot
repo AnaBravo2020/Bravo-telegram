@@ -1,0 +1,68 @@
+//Ana Bravo
+import becker.robots.*;
+
+class SmarterRobot extends Robot
+{
+    SmarterRobot(City c, int st, int ave, Direction dir, int num)
+    {
+        super(c, st, ave, dir, num);
+    }
+// changed moveMultiple to just move and declared the variable as an int.
+    public void move(int numberOfIntersections)
+    {
+    	//Initialized a variable
+    	int counter = 0;
+        while (counter < numberOfIntersections) //changed the > to <.
+        {
+            this.move();
+        	counter = counter + 1;    //added 
+        }
+    }
+    public void turnRight()  // I added a turnRight command, instead of telling the robot to move left 3 times.
+    {
+    	int counter = 0;
+    	while (counter < 3)    //added the number of left turns the robot is going to turn left.
+    	{       
+            this.turnLeft();
+        	counter = counter + 1;
+    	}	
+    }
+    public void circleDots() //I added a circle dots command for the robot to go  around the robot a total of 3 times.
+    {
+        turnRight();
+        move();
+        turnLeft(); 
+        move(2);
+        turnLeft();
+        move(2);
+        turnLeft();
+        move(2);
+        turnLeft();
+        move();
+        turnLeft();
+        move(2);	
+    }
+    public void circleDots(int numberOfDots)  //I added a command for the number of times the robot is going to circle the dot.
+    {
+    	int counter = 0;
+        while (counter < numberOfDots)
+        {
+            this.circleDots();
+        	counter = counter + 1;
+        }
+    }
+}
+
+public class ICE_11_Errors_1 extends Object
+{
+    public static void main(String[] args)
+    {
+        City wallville = new City();
+        SmarterRobot  rob = new SmarterRobot (wallville, 4, 0, Direction.EAST, 0);
+        new Thing(wallville, 4, 1);
+        new Thing(wallville, 4, 3);
+        new Thing(wallville, 4, 5);
+        
+        rob.circleDots(3); //I deleted some of the commands here and I added only one command.
+    }
+}
