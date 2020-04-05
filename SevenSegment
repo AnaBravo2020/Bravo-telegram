@@ -1,0 +1,525 @@
+/**
+ * CS 1B Quarter: Winter 2020 Professor: David Harden<br>
+ * Assignment 8 Deep Memory Seven Segment Displays<br>
+ * This class contains classes to create a seven segment display. It contains two classes
+ * and a sub class. The first class; BooleanFunc provides the truth table 
+ * used to record the truth tables of the seven segment display. The other class; the MultisegmentLogic the 
+ * parent of the sevensegmentLogic which is the subclass/child uses the the BooleanFunc class to use the 
+ * tables to define the truth tables of the seven segment display.
+ *
+ * @author anabravo
+ *
+ */
+public class foothill
+{
+   public static void main(String[] args)
+   {
+      BooleanFunc segA, segB, segC;
+
+      int inputX, k;
+
+      int evenFunc[] =
+      { 0, 2, 4, 6, 8, 10, 12, 14 };
+      int greater9Func[] =
+      { 10, 11, 12, 13, 14, 15 };
+      ;
+      int greater3Func[] =
+      { 0, 1, 2, 3 };
+
+      segA = new BooleanFunc();
+      segB = new BooleanFunc(13);
+      segC = new BooleanFunc(100, true);
+
+      segA.setTruthTableUsingTrue(evenFunc);
+      segB.setTruthTableUsingTrue(greater9Func);
+      segC.setTruthTableUsingFalse(greater3Func);
+
+      // testing class BooleanFunc
+      System.out.println("before eval()");
+      System.out.println(
+            "\n  A(x) = " + segA.getState() + "\n  B(x) = " + segB.getState() + "\n  C(x) = " + segC.getState() + "\n");
+      System.out.println("looping with eval()");
+
+      for (inputX = 0; inputX < 10; inputX++)
+      {
+         segA.eval(inputX);
+         segB.eval(inputX);
+         segC.eval(inputX);
+         System.out.println("Input: " + inputX + "\n  A(x) = " + segA.getState() + "\n  B(x) = " + segB.getState()
+               + "\n  C(x) = " + segC.getState() + "\n");
+      }
+
+      SevenSegmentLogic my7Seg, myCopy;
+
+      my7Seg = new SevenSegmentLogic();
+
+      // make sure we can't set #segs away from 7
+      if (my7Seg.setNumSegs(14))
+         System.out.println("Something's wrong -- allowed segs != 7");
+      else
+         System.out.println("Good. Dis-allowed segs != 7");
+
+      try
+      {
+         myCopy = (SevenSegmentLogic) my7Seg.clone();
+      } catch (CloneNotSupportedException e)
+      {
+         System.out.println("** Clone Unsuccessful **");
+         myCopy = new SevenSegmentLogic();
+      }
+
+      for (inputX = 0; inputX < 16; inputX++)
+      {
+         myCopy.eval(inputX);
+         System.out.print("\n| ");
+         for (k = 0; k < 7; k++)
+            System.out.print(myCopy.getValOfSeg(k) + " | ");
+         System.out.println();
+      }
+   }
+}
+
+// class BooleanFunc ----------------------------------------------------------
+class BooleanFunc implements Cloneable
+{
+   public static final int MAX_TABLE_FOR_CLASS = 65536; // that's 16 binary
+   // inputs
+   public static final int DEFAULT_TABLE_SIZE = 16;
+
+   private int tableSize;
+   private boolean[] truthTable;
+   private boolean evalReturnIfError;
+   private boolean state;
+
+   // constructors
+   public BooleanFunc()
+   {
+      this(DEFAULT_TABLE_SIZE, false);
+   }
+
+   public BooleanFunc(int tableSize)
+   {
+      this(tableSize, false);
+   }
+
+   public BooleanFunc(int tableSize, boolean evalReturnIfError)
+   {
+      // deal with construction errors in a crude but simple fashion
+      if (tableSize > MAX_TABLE_FOR_CLASS || tableSize < 1)
+         tableSize = DEFAULT_TABLE_SIZE;
+      this.tableSize = tableSize;
+      truthTable = new boolean[tableSize];
+      setTruthTableUsingTrue(new int[0]); // anon arg; will set all to false
+      this.evalReturnIfError = evalReturnIfError;
+      this.state = evalReturnIfError;
+   }
+
+   // mutators, acessors
+   public boolean setTruthTableUsingTrue(int[] inputsThatProduceTrue)
+   {
+      int k, kTable;
+
+      if (inputsThatProduceTrue.length > tableSize)
+         return false;
+
+      // they are giving us true values, so we init to false then overwrite
+      setTableToConstant(false);
+
+      for (k = 0; k < inputsThatProduceTrue.length; k++)
+      {
+         kTable = inputsThatProduceTrue[k];
+         if (kTable >= 0 && kTable < tableSize)
+            truthTable[kTable] = true;
+      }
+
+      return true;
+   }
+
+   public boolean setTruthTableUsingFalse(int[] inputsThatProduceFalse)
+   {
+      int k, kTable;
+
+      if (inputsThatProduceFalse.length > tableSize)
+         return false;
+
+      // they are giving us false values, so we init to true then overwrite
+      setTableToConstant(true);
+
+      for (k = 0; k < inputsThatProduceFalse.length; k++)
+      {
+         kTable = inputsThatProduceFalse[k];
+         if (kTable >= 0 && kTable < tableSize)
+            truthTable[kTable] = false;
+      }
+
+      return true;
+   }
+
+   public boolean eval(int input)
+   {
+      if (!inputInRange(input))
+         return (state = evalReturnIfError);
+      return (state = truthTable[input]);
+   }
+
+   public boolean getState()
+   {
+      return state;
+   }
+
+   // deep copy required
+   public Object clone() throws CloneNotSupportedException
+   {
+      int k;
+
+      // array will temporarily point to original object
+      BooleanFunc newBf = (BooleanFunc) super.clone();
+
+      newBf.truthTable = new boolean[tableSize];
+      for (k = 0; k < tableSize; k++)
+         newBf.truthTable[k] = this.truthTable[k];
+      return newBf;
+   }
+
+   // helpers
+   private void setTableToConstant(boolean constVal)
+   {
+      int k;
+
+      for (k = 0; k < tableSize; k++)
+         truthTable[k] = constVal;
+   }
+
+   private boolean inputInRange(int input)
+   {
+      if (input < 0 || input >= tableSize)
+         return false;
+      else
+         return true;
+   }
+};
+
+// class MultiSegmentLogic ----------------------------------------------------
+class MultiSegmentLogic implements Cloneable
+{
+   protected BooleanFunc[] segs;
+   protected int numSegs;
+
+   public MultiSegmentLogic()
+   {
+      this(0);
+   }
+
+   public MultiSegmentLogic(int numSegs)
+   {
+      if (!setNumSegs(numSegs))
+         this.numSegs = 0;
+   }
+
+   public boolean setNumSegs(int numSegs)
+   {
+      int k;
+
+      if (numSegs < 0)
+         return false;
+
+      this.numSegs = numSegs;
+
+      // allocate new array
+      segs = new BooleanFunc[numSegs];
+      for (k = 0; k < numSegs; k++)
+         segs[k] = new BooleanFunc();
+
+      return true;
+   }
+
+   public boolean setSegment(int segNum, BooleanFunc funcForThisSeg)
+   {
+      if (!validSeg(segNum))
+         return false;
+
+      // cloning object so we can pass in anon/temporary BooleanFunc
+      try
+      {
+         segs[segNum] = (BooleanFunc) funcForThisSeg.clone();
+      } catch (CloneNotSupportedException e)
+      {
+         return false;
+      }
+      return true;
+   }
+
+   public void eval(int input)
+   {
+      int k;
+      for (k = 0; k < numSegs; k++)
+         segs[k].eval(input);
+   }
+
+   // deep copy required
+   public Object clone() throws CloneNotSupportedException
+   {
+      int k;
+
+      // array will temporarily point to original object
+      MultiSegmentLogic newMsl = (MultiSegmentLogic) super.clone();
+
+      newMsl.segs = new BooleanFunc[numSegs];
+      for (k = 0; k < numSegs; k++)
+         newMsl.segs[k] = (BooleanFunc) this.segs[k].clone();
+      return newMsl;
+   }
+
+   // helpers
+   protected boolean validSeg(int seg)
+   {
+      if (seg < 0 || seg > numSegs - 1)
+         return false;
+      return true;
+   }
+}
+
+// class SevenSegmentLogic ----------------------------------------------------
+class SevenSegmentLogic extends MultiSegmentLogic
+{
+   public SevenSegmentLogic()
+   {
+      super.setNumSegs(7); // careful not to call sibling which does nothing
+      loadAllFuncs();
+   }
+
+   // method to prevent the base-class from changing away from 7
+   public boolean setNumSegs(int numSegs)
+   {
+      if (numSegs != 7)
+         return false;
+      return true;
+   }
+
+   public boolean getValOfSeg(int seg)
+   {
+      if (!validSeg(seg))
+         return false;
+      return segs[seg].getState();
+   }
+
+   private void loadAllFuncs()
+   {
+      // we use letters, rather than arrays, to help connect with traditional
+      // a, b, ... g segements
+
+      // define all in terms of on/true
+      int segA[] =
+      { 0, 2, 3, 5, 6, 7, 8, 9, 10, 12, 14, 15 };
+      int segB[] =
+      { 0, 1, 2, 3, 4, 7, 8, 9, 10, 13 };
+      int segC[] =
+      { 0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13 };
+      int segD[] =
+      { 0, 2, 3, 5, 6, 8, 9, 11, 12, 13, 14 };
+      int segE[] =
+      { 0, 2, 6, 8, 10, 11, 12, 13, 14, 15 };
+      int segF[] =
+      { 0, 4, 5, 6, 8, 9, 10, 11, 12, 14, 15 };
+      int segG[] =
+      { 2, 3, 4, 5, 6, 8, 9, 10, 11, 13, 14, 15 };
+
+      // set error pattern to "E" through second parameter
+      BooleanFunc a = new BooleanFunc(16, true);
+      a.setTruthTableUsingTrue(segA);
+      BooleanFunc b = new BooleanFunc(16, false);
+      b.setTruthTableUsingTrue(segB);
+      BooleanFunc c = new BooleanFunc(16, false);
+      c.setTruthTableUsingTrue(segC);
+      BooleanFunc d = new BooleanFunc(16, true);
+      d.setTruthTableUsingTrue(segD);
+      BooleanFunc e = new BooleanFunc(16, true);
+      e.setTruthTableUsingTrue(segE);
+      BooleanFunc f = new BooleanFunc(16, true);
+      f.setTruthTableUsingTrue(segF);
+      BooleanFunc g = new BooleanFunc(16, true);
+      g.setTruthTableUsingTrue(segG);
+
+      // this block could be combined with above; done separately for clarity
+      setSegment(0, a);
+      setSegment(1, b);
+      setSegment(2, c);
+      setSegment(3, d);
+      setSegment(4, e);
+      setSegment(5, f);
+      setSegment(6, g);
+   }
+}
+
+class SevenSegmentImage implements Cloneable
+{
+   public static final int MIN_HEIGHT = 5;
+   public static final int MIN_WIDTH = 5;
+   public static final int MAX_HEIGHT = 65;
+   public static final int MAX_WIDTH = 41;
+   public static final String DRAW_CHAR = "*";
+   public static final String BLANK_CHAR = " ";
+
+   private boolean[][] data;
+   private int topRow, midRow, bottomRow, leftCol, rightCol;
+
+   public SevenSegmentImage()
+   {
+      this(MIN_WIDTH, MIN_HEIGHT);
+   }
+
+   public SevenSegmentImage(int width, int height)
+   {
+      if (!setSize(width, height))
+         setSize(MIN_WIDTH, MIN_HEIGHT);
+   }
+
+   public void clearImage()
+   {
+      for (int i = 0; i < data.length; i++)
+         for (int j = 0; j < data[0].length; j++)
+            data[i][j] = false;
+   }
+
+   public boolean turnOnCellsForSegment(char segment)
+   {
+      segment = Character.toLowerCase(segment);
+      switch (segment)
+      {
+      case 'a':
+         drawHorizontal(topRow);
+         break;
+      case 'b':
+         drawVertical(rightCol, topRow, midRow);
+         break;
+      case 'c':
+         drawVertical(rightCol, midRow, bottomRow);
+         break;
+      case 'd':
+         drawHorizontal(bottomRow);
+         break;
+      case 'e':
+         drawVertical(leftCol, midRow, bottomRow);
+         break;
+      case 'f':
+         drawVertical(leftCol, topRow, midRow);
+         break;
+      case 'g':
+         drawHorizontal(midRow);
+         break;
+      default:
+         return false;
+      }
+      return true;
+   }
+
+   public boolean setSize(int width, int height)
+   {
+      if (!validateSize(width, height))
+         return false;
+      data = new boolean[height][width];
+      topRow = 0;
+      bottomRow = height - 1;
+      midRow = bottomRow / 2;
+      leftCol = 0;
+      rightCol = width - 1;
+      return true;
+   }
+
+   public void display()
+   {
+      for (int i = 0; i < data.length; i++)
+      {
+         for (int j = 0; j < data[0].length; j++)
+         {
+            if (data[i][j])
+               System.out.print(DRAW_CHAR);
+            else
+               System.out.print(BLANK_CHAR);
+         }
+         System.out.println();
+      }
+   }
+
+   public Object clone() throws CloneNotSupportedException
+   {
+      SevenSegmentImage newObject = (SevenSegmentImage) super.clone();
+      for (int i = 0; i < data.length; i++)
+         newObject.data[i] = data[i].clone();
+      return newObject;
+   }
+
+   private boolean validateSize(int width, int height)
+   {
+      return (width >= MIN_WIDTH && width <= MAX_WIDTH)
+            && (height >= MIN_HEIGHT && height <= MAX_HEIGHT && height % 2 == 1);
+   }
+
+   private void allocateCleanArray()
+   {
+      data = new boolean[data.length][data[0].length];
+   }
+
+   private void drawHorizontal(int row)
+   {
+      for (int i = 0; i < data[0].length; i++)
+         data[row][i] = true;
+   }
+
+   private void drawVertical(int col, int startRow, int stopRow)
+   {
+      for (int i = startRow; i < stopRow; i++)
+         data[i][col] = true;
+   }
+}
+
+class SevenSegmentDisplay implements Cloneable
+{
+   private SevenSegmentImage theImage;
+   private SevenSegmentLogic theDisplay;
+
+   public SevenSegmentDisplay() throws CloneNotSupportedException
+   {
+      theImage = new SevenSegmentImage();
+      theDisplay = new SevenSegmentLogic();
+   }
+
+   public SevenSegmentDisplay(int width, int height) throws CloneNotSupportedException
+   {
+      theImage = new SevenSegmentImage(width, height);
+      theDisplay = new SevenSegmentLogic();
+   }
+
+   public boolean setSize(int width, int height)
+   {
+      return theImage.setSize(width, height);
+   }
+
+   public void loadConsoleImage()
+   {
+      theImage.clearImage();
+      char[] segments =
+      { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
+      for (int i = 0; i < segments.length; i++)
+         if (theDisplay.getValOfSeg(i))
+            theImage.turnOnCellsForSegment(segments[i]);
+   }
+
+   public void consoleDisplay()
+   {
+      theImage.display();
+   }
+
+   public void eval(int input)
+   {
+      theDisplay.eval(input);
+   }
+
+   public Object clone() throws CloneNotSupportedException
+   {
+      SevenSegmentDisplay newObject = (SevenSegmentDisplay) super.clone();
+      newObject.theImage = (SevenSegmentImage) theImage.clone();
+      newObject.theDisplay = (SevenSegmentLogic) theDisplay.clone();
+      return newObject;
+   }
+}
