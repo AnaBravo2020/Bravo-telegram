@@ -1,0 +1,39 @@
+import java.util.Scanner;
+
+
+class PrintHelper {
+	// Your methods to print various shapes goes here
+	public void printStars(int width) {
+		System.out.println("Stars:");
+		int whichCol = 0;
+		while (whichCol < width) {
+			System.out.print("*");
+			++whichCol;
+		}
+		// Print just a new-line character
+		System.out.println("");
+	}
+
+	public void printRectangle(int width, int height) {
+		System.out.println("Rectangle:");
+		
+		int whichRow = 0;
+		int whichCol = 0;
+		while (whichRow < height) {
+			System.out.println("*");
+			++whichRow;
+		}
+		// Print just a new-line character
+		System.out.println("");
+	}
+
+}
+
+public class PrintingShapes extends Object {
+	public static void main(String[] args) {
+		
+      PrintHelper printer = new PrintHelper();
+      Scanner keyboard = new Scanner(System.in);
+
+	}
+}
