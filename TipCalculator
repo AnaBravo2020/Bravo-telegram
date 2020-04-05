@@ -1,0 +1,45 @@
+/**
+ * @Ana Bravo
+ * 
+ * Tip Calculator to get to 15%, 20%, and 30% tip amounts for your meal.
+ */
+
+import java.util.Scanner;
+
+public class TipCalc extends Object {
+	public static void main(String[] args) {
+		// create a new Scanner
+		Scanner keyboard = new Scanner(System.in);
+		// Notice how we don't need to setup the city anymore
+
+		System.out.println("Please type in the cost of the meal");
+
+		// double precision floating point number
+		double costOfMeal = 0.0;
+
+		if (keyboard.hasNextDouble()) // if user typed in a whole number
+		{
+		// go and get the number
+			costOfMeal = keyboard.nextDouble();
+		}
+		double tip15 = costOfMeal * 0.15;
+		double tip20 = costOfMeal * 0.20;
+		double tip30 = costOfMeal * 0.30;
+
+		// print out tip15, tip20, tip30
+
+		System.out.println("Cost is: $" + costOfMeal);
+		System.out.println("15% tip is: $" + tip15);
+		System.out.println("20% tip is: $" + tip20);
+		System.out.println("30% tip is: $" + tip30);
+		
+		// We now use the boolean variable:
+		// boolean - true/false
+		
+		boolean mealIsPricey = costOfMeal > 20;
+
+		if (mealIsPricey)
+			System.out.println("The meal is expensive!");
+		keyboard.close();
+	}
+}
