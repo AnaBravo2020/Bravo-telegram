@@ -1,0 +1,49 @@
+	import becker.robots.*;
+
+// Fix errors, and add code, so that the robot moves to avenue 8
+	
+class UpgradedRobot extends Robot{
+
+    public UpgradedRobot(City arg0, int arg1, int arg2, Direction arg3)
+    {
+        super(arg0, arg1, arg2, arg3);
+        // TODO Auto-generated constructor stub
+    }
+    public UpgradedRobot(City arg0, int arg1, int arg2, Direction arg3,int arg4)
+    {
+        super(arg0, arg1, arg2, arg3,arg4);
+        // TODO Auto-generated constructor stub
+    }
+    public void turnRight() {
+        this.turnLeft();
+        this.turnLeft();
+        this.turnLeft();
+    }
+    
+    
+}
+
+public class ICE_05_Avenues extends Object
+{
+    
+    public static void main(String[] args)
+    {
+        City wallville = new City(5, 10);
+        UpgradedRobot rover = new UpgradedRobot(wallville, 4, 0, Direction.NORTH, 0);
+        new Thing(wallville, 4, 8);
+     // For the error(s) on the next line, what are some possible, different
+        // ways you could fix this?
+        rover.turnRight();
+        // Every robot has a built-in command named
+        // getAvenue(), which gives you the number of the avenue that
+        // the robot is currently on.
+        // It allows you to ask questions like is the robot on avenue 8?
+        while(rover.getAvenue() <= 7 ) {
+        
+            // move the robot to avenue #8
+		      rover.move();
+        }
+		  
+		  
+    }
+}
