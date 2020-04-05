@@ -1,0 +1,363 @@
+/**
+ * CS1A, Assignment 4, "Guessing Game" <br>
+ * Quarter: Fall 2019 <br>
+ * Calls the class GuessingGame and runs the game. <br>
+ * 
+ * @author Ana Bravo
+ */
+public class Game_Program extends Object
+{
+    public static void main(String[] args)
+    {
+        GuessingGame gg = new GuessingGame();
+        
+        int choice = 1;
+        do
+        {
+            gg.playGuessingGame();
+            choice = gg.again();
+        } while (choice == 1);
+        System.out.print("\nThat was fun! Thanks for playing!");
+    }
+}
+------------------------------------------------ End of Main ------------------------------------------------------------
+
+import java.util.Random;
+import java.util.Scanner;
+
+/**
+ * CS1A, Assignment 4, "Guessing Game" <br>
+ * Quarter: Fall 2019 <br>
+ * This class contains methods to run a guessing game where the user has 5
+ * attempts to guess a randomly generated number between 0 and 15, letting them
+ * know if they guessed too high or too low if they guess wrong. The user is
+ * also given the option to play again or close the program after the game is
+ * over.<br>
+ * *Noted in the documentation are simple ways to change the duration of the
+ * game.* <br>
+ * The most efficient way to win this game is to guess numbers in the middle of
+ * the range you know the random number is in. For example, begin with 8 and if
+ * the game says that is too low, pick 12 since 12 is halfway between 8 and 15.
+ * Repeat this process until you win. <br>
+ * 
+ * @author Ana Bravo
+ */
+public class GuessingGame extends Object
+{
+    Scanner keyboard = new Scanner(System.in);
+
+    /**
+     * Instantiates a random number generator.
+     */
+    Random randomNumberGenerator = new Random();
+
+    /**
+     * Keeps track of the number of times the user has guessed. Modified by
+     * {@link#store(int s)}
+     */
+    int userGuess = 0;
+
+    /**
+     * Variable used to store the secret number the user is attempting to guess.
+     */
+    int secretNumber = 0;
+
+    /**
+     * Instantiates a new value determining the scope of the game. The maximum
+     * random number generated will be 1 less than the range.
+     */
+    int range = 16;
+
+    /**
+     * Instantiates a new array to hold the player's guesses. To make the game
+     * longer, change the 5 to a larger number (allowing more guesses), as well as
+     * the integer {@link#range} to increase the maximum number that may be
+     * generated.
+     */
+    int[] guesses = new int[5];
+
+    /**
+     * Used to obtain the number of guesses the user has remaining for any length of
+     * game.
+     * 
+     * @return Remaining number of guesses.
+     */
+    public int remaining()
+    {
+        return guesses.length - userGuess;
+    }
+
+    /**
+     * Used to generate the secret random number used in the game.
+     * 
+     * @param One number higher than the highest number in the guessing game.
+     * @return a random number between 0 and one less than the parameter
+     *         (inclusive).
+     */
+    public int getRandomNumber()
+    {
+        return randomNumberGenerator.nextInt(range);
+    }
+
+    /**
+     * Generates a scanner and gets input from the user. Tests the value input to
+     * make sure that it is an integer, that it is a valid choice using
+     * {@link#validChoice(int y)}, that it is not something the user has guessed
+     * before using {@link#repeat(int r)}, and then returns the user's choice.
+     * 
+     * @return The number that the user chooses.
+     */
+    public int numChoice()
+    {
+        while (true)
+        {
+            if (keyboard.hasNextInt())
+            {
+                int x = keyboard.nextInt();
+                if (validChoice(x))
+                {
+                    if (!repeat(x))
+                    {
+                        return x;
+                    } else
+                    {
+                        System.out.println("You have already guessed " + x + ", please guess something new!");
+                    }
+                } else
+                {
+                    System.out.println("Sorry, that is not a valid integer. Please try again");
+
+                }
+            } else
+            {
+                System.out.println("Please choose an integer.");
+
+            }
+            keyboard.nextLine();
+        }
+    }
+
+    /**
+     * Prints a message asking if the player would like to try again, telling the
+     * user to input 1 for yes, and 0 for no. Then gets input from the user, and
+     * makes sure that the input is one of the two options, and returns which option
+     * was chosen.
+     * 
+     * @return 1 or 0 based on user input.
+     */
+    public int again()
+    {
+        int play;
+        while (true)
+        {
+            System.out.println(
+                    "That was fun! Would you like to play again? Press 1 to try again, press 0 to close the program.");
+            if (keyboard.hasNextInt())
+            {
+                play = keyboard.nextInt();
+                if (play == 1 || play == 0)
+                {
+                    return play;
+                } else
+                {
+                    System.out.println("I'm sorry, that was not one of the options.");
+                }
+            } else
+            {
+                System.out.println("I'm sorry, that is not a valid choice!");
+            }
+            keyboard.next();
+        }
+    }
+
+    /**
+     * Tests whether or not the number input by the user has already been guessed.
+     * Used by the {@link#numChoice()} method to test the validity of a guess.
+     * 
+     * @param User input from numChoice().
+     * @return True if the user has already guessed the input number, false if they
+     *         have not.
+     */
+    public boolean repeat(int r)
+    {
+        for (int i = 0; i < userGuess; i++)
+        {
+            if (r == guesses[i])
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Tests whether the user's guess is between the minimum and the maximum range.
+     * Used by the {@link#numChoice()} method to test the validity of a guess.
+     * 
+     * @param User input from numChoice().
+     * @return True if the user's guess is valid or false if it is not.
+     */
+    public boolean validChoice(int y)
+    {
+        int rr = range - 1;
+        if (y < 0 || y > rr)
+        {
+            return false;
+        } else
+        {
+            return true;
+        }
+    }
+
+    /**
+     * Checks if the number is the winning number. Used by {@link#run()} to see if
+     * the user has won.
+     * 
+     * @param User input.
+     * @return True if the user's guess is the secret number, false if it is not.
+     */
+    public boolean win(int c)
+    {
+        if (c == secretNumber)
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Returns a hint for the user. Used by {@link#run()} to give the user a hint.
+     * 
+     * @param User input.
+     * @return If the guess is too low, returns "too low". If the guess is too high,
+     *         returns "too high".
+     */
+    public String hint(int h)
+    {
+        if (h < secretNumber)
+        {
+            return "too low";
+        } else if (h > secretNumber)
+        {
+            return "too high";
+        } else
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Prints out a welcome message and the list of the rules of the game.
+     */
+    public void welcome()
+    {
+        int w = range - 1;
+        System.out.println("Welcome, new player! Let's play a guessing game!\n");
+        System.out.println("Rules of the guessing game are as follows:");
+        System.out.println("1. You've got " + guesses.length + " guesses to guess my secret number.");
+        System.out.println("2. The number is a whole number that's between 0 and " + w + " (inclusive at both ends).");
+        System.out.println("3. I'll give you hints about the number, if you don't guess right.\n");
+    }
+
+    /**
+     * Stores the user's guess in the proper slot in the array {@link#guesses}.
+     * Additionally, increments {@link#userGuess}.
+     * 
+     * @param User Input
+     */
+    public void store(int s)
+    {
+        guesses[userGuess] = s;
+        userGuess++;
+    }
+
+    /**
+     * Prints out the number the user just guessed.
+     * 
+     * @param User Input.
+     */
+    public void previousGuess(int p)
+    {
+        System.out.println("\nYou just guessed " + p);
+    }
+
+    /**
+     * Prints out all of the numbers the user has guessed so far. Uses the
+     * {@link#userGuess} integer that tracks the number of times the user has
+     * guessed.
+     */
+    public void previousGuesses()
+    {
+        System.out.print("So far, you've guessed: ");
+        for (int i = 0; i < userGuess; i++)
+        {
+            int q = 0;
+            if (q < userGuess)
+            {
+                System.out.print(guesses[i] + "  ");
+            }
+        }
+        System.out.println();
+    }
+
+    /**
+     * Prints the {@link#welcome()} information, generates the
+     * {@link#secretNumber} and tells the user it thought of a number for them to
+     * guess. It then enters a loop that runs as many times as the user has guesses.
+     * This loop prompts the user to guess a number, which is obtained using
+     * {@link#numChoice()} and is input into a new variable newGuess. The loop then
+     * uses {@link#store(int s)} to store the current guess in the array of guesses,
+     * and uses {@link#previousGuess(int p)} to reiterate the guess. Finally if the
+     * user guessed the secret number, prints a congratulatory message that tells
+     * the user how many guesses they made and closes the loop early, or else it
+     * tells the user they guessed wrong, gives them a {@link#hint(int h)}, and
+     * tells them what numbers they have guessed so far using
+     * {@link#previousGuesses(int p)} and how many guesses they have
+     * {@link#remaning()}.
+     */
+    public void run()
+    {
+        welcome();
+        secretNumber = getRandomNumber();
+        System.out.println("Ok, I just thought of a new number for you to guess.\n");
+        for (int i = 0; i < guesses.length; i++)
+        {
+            System.out.print("Please choose a number to guess.");
+            int newGuess = numChoice();
+            store(newGuess);
+            previousGuess(newGuess);
+            if (win(newGuess))
+            {
+                System.out.println("\nGreat guess!!! That's my number!! You got it in " + userGuess + " guesses!");
+                i = guesses.length;
+            } else
+            {
+                System.out.println("\nSorry, that is not the secret number. Your guess was " + hint(newGuess) + "\n");
+                previousGuesses();
+                System.out.println("\nYou currently have " + remaining() + " guesses remaining.\n");
+            }
+        }
+    }
+
+    /**
+     * Resets the values in the array {@link#guesses} and the integer
+     * {@link#userGuess} to zero to ready for a new game.
+     */
+    public void clear()
+    {
+        userGuess = 0;
+        guesses = new int[5];
+    }
+
+    /**
+     * Uses the {@link#run()} and {@link#clear()} methods to run the game.
+     */
+    public void playGuessingGame()
+    {
+        run();
+        clear();
+        keyboard.close();
+    }
+}
