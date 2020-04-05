@@ -1,0 +1,239 @@
+/**
+ * CS1B, Assignment 11, "GUI Cards"<br> 
+ * Quarter: Winter 2020, Professor: David Harden<br>
+ * 
+ * This class contains a main method with methods from other classes like the CardTable class. This class controls 
+ * the position of the panels and cards of GUIextending JFrame class contains components like, labels, buttons, text 
+ * fields added to create GUI. It also contains a GUICard class that manages the building and reading of the card image icons.
+ * The Card class has methods found in a card, used as a template for the other classes to be used.
+ * 
+ */
+
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.*;
+
+public class foothill {
+    static int NUM_CARDS_PER_HAND = 7;
+    static int NUM_PLAYERS = 2;
+    static JLabel[] computerLabels = new JLabel[NUM_CARDS_PER_HAND];
+    static JLabel[] humanLabels = new JLabel[NUM_CARDS_PER_HAND];
+    static JLabel[] playedCardLabels = new JLabel[NUM_PLAYERS];
+    static JLabel[] playLableText = new JLabel[NUM_PLAYERS];
+    
+    // main method
+    public static void main(String[] args) {
+
+        CardTable myCardTable = new CardTable("CS 1B CardTable", NUM_CARDS_PER_HAND, NUM_PLAYERS);
+        myCardTable.setSize(800, 600);
+        myCardTable.setLocationRelativeTo(null);
+        myCardTable.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        myCardTable.setVisible(true);
+
+        for (int i = 0; i < computerLabels.length; i++) {
+            computerLabels[i] = new JLabel(GUICard.getBackCardIcon(), JLabel.CENTER);
+            myCardTable.panelComputer.add(computerLabels[i]);
+        }
+
+        for (int i = 0; i < humanLabels.length; i++) {
+            humanLabels[i] = new JLabel(GUICard.getIcon(generateRandomCard()), JLabel.CENTER);
+            myCardTable.panelPlayer.add(humanLabels[i]);
+        }
+
+        for (int i = 0; i < playedCardLabels.length; i++) {
+            playedCardLabels[i] = new JLabel(GUICard.getIcon(generateRandomCard()), JLabel.CENTER);
+            myCardTable.panelPlaying.add(playedCardLabels[i]);
+        }
+
+        playLableText[0] = new JLabel("Computer", JLabel.CENTER);
+        playLableText[1] = new JLabel("You", JLabel.CENTER);
+
+        for (int i = 0; i < playLableText.length; i++) {
+            myCardTable.panelPlaying.add(playLableText[i]);
+        }
+
+        myCardTable.setVisible(true);
+    }
+
+    private static Card generateRandomCard() {
+        char value = GUICard.turnIntIntoCardValueChar((int) (13 * Math.random()));
+        char suitChar = GUICard.turnIntIntoCardSuitChar((int) (4 * Math.random()));
+        Card.Suit suit = GUICard.suitConvertAssist[GUICard.suitValsConvertAssist.indexOf(suitChar)];
+        return new Card(value, suit);
+    }
+}
+
+------------------------------------------ End of main -------------------------------------------
+
+// Card
+public class Card {
+    public enum Suit {
+        clubs, diamonds, hearts, spades
+    }
+
+    public static final char DEFAUlT_VAL = 'A';
+    public static final Suit DEFAULT_SUIT = Suit.spades;
+
+    private char value;
+    private Suit suit;
+    private boolean errorFlag;
+
+    public Card(char value, Suit suit) {
+        set(value, suit);
+    }
+
+    public Card(char value) {
+        this(value, DEFAULT_SUIT);
+    }
+
+    public Card() {
+        this(DEFAUlT_VAL);
+    }
+
+    public Card(Card card) {
+        this.errorFlag = card.errorFlag;
+        this.value = card.value;
+        this.suit = card.suit;
+    }
+
+    public boolean set(char value, Suit suit) {
+        errorFlag = false;
+        char upVal = Character.toUpperCase(value);
+        if (!isValid(upVal))
+            errorFlag = true;
+        this.value = upVal;
+        this.suit = suit;
+        return !errorFlag;
+    }
+
+    public char getValue() {
+        return value;
+    }
+
+    public Suit getSuit() {
+        return suit;
+    }
+
+    public boolean getErrorFlag() {
+        return errorFlag;
+    }
+
+    private boolean isValid(char c) {
+        return (c == 'A') || (c >= '2' && c <= '9') || (c == 'T') || (c == 'J') || (c == 'Q') || (c == 'K')
+                || (c == 'X');
+    }
+}
+
+---------------------------------------------- End of Card class ---------------------------------------------
+
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.*;
+
+// CardTable
+public class CardTable extends JFrame {
+    public static final int MAX_CARDS_PER_HAND = 57;
+    public static final int MAX_PLAYERS = 2;
+
+    private int numCardsPerHand;
+    private int numPlayers;
+
+    public JPanel panelComputer, panelPlaying, panelPlayer;
+
+    public CardTable(String title, int numCardsPerHand, int numPlayers) {
+        super(title);
+
+        if (numCardsPerHand < 1 || numCardsPerHand > MAX_CARDS_PER_HAND)
+            numCardsPerHand = MAX_PLAYERS;
+        if (numPlayers < 2 || numPlayers > MAX_PLAYERS)
+            numPlayers = MAX_PLAYERS;
+
+        panelComputer = new JPanel(new GridLayout(1, numCardsPerHand));
+        panelComputer.setBorder(new TitledBorder("Computer Hand"));
+        panelPlaying = new JPanel(new GridLayout(2, numPlayers));
+        panelPlaying.setBorder(new TitledBorder("Playing Area"));
+        panelPlayer = new JPanel(new GridLayout(1, numCardsPerHand));
+        panelPlayer.setBorder(new TitledBorder("Your Hand"));
+
+        setLayout(new BorderLayout(20, 10));
+        add(panelComputer, BorderLayout.NORTH);
+        add(panelPlaying, BorderLayout.CENTER);
+        add(panelPlayer, BorderLayout.SOUTH);
+    }
+
+    public int getNumCardsPerHand() {
+        return numCardsPerHand;
+    }
+
+    public int getNumPlayer() {
+        return numPlayers;
+    }
+}
+
+------------------------------------------- End of Card Table class -----------------------------------------
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
+// GuiCard
+public class GUICard {
+    private static Icon[][] iconCard = new ImageIcon[14][4];
+    private static Icon iconBack;
+    private static boolean iconLoaded = false;
+
+    public static String cardValsConvertAssist = "23456789TJQKAX";
+    public static String suitValsConvertAssist = "CDHS";
+    public static Card.Suit[] suitConvertAssist = { Card.Suit.clubs, Card.Suit.diamonds, Card.Suit.hearts,
+            Card.Suit.spades };
+
+    public static void loadIcons() {
+        if (iconLoaded)
+            return;
+        String imageFileName;
+        int intSuit, intVal;
+        for (intSuit = 0; intSuit < 4; intSuit++)
+            for (intVal = 0; intVal < 14; intVal++) {
+                imageFileName = "images/" + turnIntIntoCardValueChar(intVal) + turnIntIntoCardSuitChar(intSuit)
+                        + ".gif";
+                iconCard[intVal][intSuit] = new ImageIcon(imageFileName);
+            }
+        imageFileName = "images/BK.gif";
+        iconBack = new ImageIcon(imageFileName);
+        iconLoaded = true;
+    }
+
+    public static Icon getIcon(Card card) {
+        loadIcons();
+        return iconCard[valueAsInt(card)][suitAsInt(card)];
+    }
+
+    public static Icon getBackCardIcon() {
+        loadIcons();
+        return iconBack;
+    }
+
+    public static char turnIntIntoCardValueChar(int k) {
+        if (k < 0 || k > 13)
+            return '?';
+        return cardValsConvertAssist.charAt(k);
+    }
+
+    public static char turnIntIntoCardSuitChar(int k) {
+        if (k < 0 || k > 3)
+            return '?';
+        return suitValsConvertAssist.charAt(k);
+    }
+
+    private static int valueAsInt(Card card) {
+        char value = card.getValue();
+        return cardValsConvertAssist.indexOf(value);
+    }
+
+    private static int suitAsInt(Card card) {
+        for (int i = 0; i < suitConvertAssist.length; i++)
+            if (card.getSuit() == suitConvertAssist[i])
+                return i;
+        return -1;
+    }
+}
