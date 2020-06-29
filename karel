@@ -1,0 +1,48 @@
+from karel.stanfordkarel import *
+
+"""
+File: StoneMasonKarel.py
+------------------------
+StoneMasonKarel is repairing the quad in this world and other worlds, too.
+StoneMasonKarel uses TODO
+"""
+
+
+def main():
+    fix_city()
+    going_around_three_cities()
+    last_city()
+
+
+def going_around_three_cities():
+    for i in range(3):
+        turn_left()
+        move_four()
+        turn_backwards()
+        move_four()
+        turn_left()
+        move_four()
+
+
+def last_city():
+    turn_left()
+    move_four()
+    turn_backwards()
+    move_four()
+
+
+def move_four():
+    move()
+    move()
+    move()
+    move()
+
+
+def turn_backwards():
+    turn_left()
+    turn_left()
+
+
+def fix_city():
+    while no_beepers_present():
+        put_beeper()
